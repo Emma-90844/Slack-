@@ -8,6 +8,7 @@ import ChatInput from "./ChatInput";
 
 function Chat() {
   const roomId = useSelector(selectRoomId)
+  console.log(roomId)
   return (
     <ChatContainer>
       <>
@@ -26,11 +27,17 @@ function Chat() {
             </p>
           </HeaderRight>
         </Header>
+
+
         {/* ChatMessages */}
         <ChatMessages>
 
         </ChatMessages>
-        {/* Chat Input */}
+        {/*List out the messages*/}
+
+
+
+
         <ChatInput
           // ChannelName
           channelId={roomId}
@@ -53,7 +60,7 @@ const HeaderLeft = styled.div`
   > h4 {
     display: flex;
     text-transform: lowercase;
-    margin-right: 10px;
+    margin- right: 10px;
   }
   > h4 > .MuiSvgIcon-root {
     margin-left: 20px;
