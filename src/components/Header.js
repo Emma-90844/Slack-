@@ -1,41 +1,36 @@
 import React from "react";
-import styled from 'styled-components';
-import { Avatar } from '@material-ui/core';
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
-import SearchIcon from '@material-ui/icons/Search';
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
+import styled from "styled-components";
+import { Avatar } from "@material-ui/core";
+import AccessTimeIcon from "@material-ui/icons/AccessTime";
+import SearchIcon from "@material-ui/icons/Search";
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from "../firebase";
+
 
 function Header() {
+  const [user] = useAuthState(auth);
+  
   return (
     <HeaderContainer>
       {/* Header Left */}
       <HeaderLeft>
-        <HeaderAvatar />
+        <HeaderAvatar onClick={()=> auth.signOut()} src={user?.photoURL} alt={user?.displayName} />
         <AccessTimeIcon />
       </HeaderLeft>
 
       {/* Header Search */}
       <HeaderSearch>
-          <SearchIcon/>
-          <input placeholder='search channels chats'/>
+        <SearchIcon />
+        <input placeholder="search channels chats" />
       </HeaderSearch>
 
       {/* Header Right */}
       <HeaderRight>
-        <HelpOutlineIcon/>
+        {/* <ExitToAppIcon/> <span>Exit</span> */}
+        <HelpOutlineIcon />
       </HeaderRight>
-
-
-
-
-
-
-
-
-
-
-
-
     </HeaderContainer>
   );
 }
@@ -71,33 +66,31 @@ const HeaderAvatar = styled(Avatar)`
 `;
 
 const HeaderSearch = styled.div`
-display: flex;
-align-items: center;
-flex: 0.4;
-background-color: #421f44;
-text-align: center;
-border-radius:6px;
-padding: 0 50px;
-color: gray;
-border: 1px solid gray;
->input{
-    border-radius:6px;
+  display: flex;
+  align-items: center;
+  flex: 0.4;
+  background-color: #421f44;
+  text-align: center;
+  border-radius: 6px;
+  padding: 0 50px;
+  color: gray;
+  border: 1px solid gray;
+  > input {
+    border-radius: 6px;
     background-color: transparent;
     border: none;
-    text-align:center;
+    text-align: center;
     min-width: 30vw;
-    color: 	#D0D0D0;
+    color: #d0d0d0;
     outline: 0;
-}
-
-`
+  }
+`;
 const HeaderRight = styled.div`
-    flex: 0.3;
-    display: flex;
-    align-items: flex-end;
-    >.MuiSvgIcon-root {
-        margin-left: auto;
-        margin-right: 20px
-    }
-
-`
+  flex: 0.3;
+  display: flex;
+  align-items: flex-end;
+  > .MuiSvgIcon-root {
+    margin-left: auto;
+    margin-right: 20px;
+  }
+`;
