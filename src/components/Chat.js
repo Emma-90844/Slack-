@@ -1,54 +1,104 @@
 import StarBorderOutlinedIcon from "@material-ui/icons/StarBorderOutlined";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import  {selectRoomId} from '../features/appSlice'
+import { selectRoomId } from "../features/appSlice";
 import ChatInput from "./ChatInput";
+import { db } from "../firebase";
+import { useCollection } from "react-firebase-hooks/firestore";
+import Message from "./Message";
 
 function Chat() {
-  const roomId = useSelector(selectRoomId)
-  console.log(roomId)
+  const chatRef = useRef(null);
+  // create elements
+  const roomId = useSelector(selectRoomId);
+
+  const [roomDetails] = useCollection(
+    roomId && db.collection("rooms").doc(roomId)
+  );
+
+  // ROOM messages
+  const [roomMessages, loading] = useCollection(
+    roomId &&
+      db
+        .collection("rooms")
+        .doc(roomId)
+        .collection("messages")
+        .orderBy("timestamp", "asc")
+  );
+
+  // console.log(roomDetails?.data());
+
+  // Autoscroll to the bottom
+  useEffect(() => {
+    chatRef?.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [roomId, loading]); 
+
   return (
     <ChatContainer>
-      <>
-      {/* Header */}
-        <Header>
-          <HeaderLeft>
-            <h4>
-              <strong>#Room-name</strong>
-            </h4>
-            <StarBorderOutlinedIcon />
-          </HeaderLeft>
-          <HeaderRight>
-            <p>
-              <InfoOutlinedIcon />
-              Details
-            </p>
-          </HeaderRight>
-        </Header>
-
-
-        {/* ChatMessages */}
-        <ChatMessages>
-
-        </ChatMessages>
-        {/*List out the messages*/}
+      {roomDetails && roomMessages && (
+        <>
+          {/* Header */}
+          <Header>
+            <HeaderLeft>
+              <h4>
+                <strong>#{roomDetails?.data().name} Chatroom</strong>
+              </h4>
+              <StarBorderOutlinedIcon />
+            </HeaderLeft>
+            <HeaderRight>
+              <p>
+                <InfoOutlinedIcon />
+                Details
+              </p>
+            </HeaderRight>
+          </Header>
 
 
 
+          {/* ChatMessages */}
+          <ChatMessages>
+            {roomMessages?.docs.map((doc) => {
+              const { message, timestamp, user, userImage } = doc.data();
+              return (
+                <Message
+                  key={doc.id}
+                  message={message}
+                  timestamp={timestamp}
+                  user={user}
+                  userImage={userImage}
+                />
+              );
+            })}
 
-        <ChatInput
-          // ChannelName
-          channelId={roomId}
-        />
-      </>
+
+
+            {/* To create the when full screen message auto scroll */}
+            <ChatBottom ref={chatRef} />
+          </ChatMessages>
+
+          {/*List out the messages*/}
+          <ChatInput
+            chatRef={chatRef}
+            channelName={roomDetails?.data().name}
+            channelId={roomId}
+          />
+        </>
+      )}
     </ChatContainer>
   );
 }
 
+
+
+
+
 export default Chat;
 const Header = styled.div`
+  top: 0;
   display: flex;
   justify-content: space-between;
   padding: 20px;
@@ -60,7 +110,7 @@ const HeaderLeft = styled.div`
   > h4 {
     display: flex;
     text-transform: lowercase;
-    margin- right: 10px;
+    margin-right: 10px;
   }
   > h4 > .MuiSvgIcon-root {
     margin-left: 20px;
@@ -77,13 +127,15 @@ const HeaderRight = styled.div`
     margin-right: 5px !important;
   }
 `;
+
 const ChatContainer = styled.div`
   flex: 0.7;
   flex-grow: 1;
   overflow-y: scroll;
-  /* margin-top: 60px; */
+  margin-top: 60px;
 `;
-const ChatMessages = styled.div`
+const ChatMessages = styled.div``;
 
-
+const ChatBottom = styled.div`
+  padding-bottom: 200px;
 `;
